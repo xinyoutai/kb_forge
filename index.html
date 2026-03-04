@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>KB Forge — Kettlebell Workout Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-card: #141414;
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139, 92, 246, 0.2);
+    --accent-soft: #a78bfa;
+    --text-primary: #f0ece6;
+    --text-secondary: #8a8580;
+    --text-muted: #5a5550;
+    --border: #2a2520;
+    --border-accent: #3a3530;
+    --success: #2dd4a0;
+    --success-glow: rgba(45, 212, 160, 0.15);
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --tag-posterior: #ff4d00;
+    --tag-quad: #f59e0b;
+    --tag-push: #3b82f6;
+    --tag-pull: #8b5cf6;
+    --tag-core: #2dd4a0;
+    --tag-fullbody: #ec4899;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* NAV */
+  .nav-tabs {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    flex: 1;
+    padding: 1rem;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+  }
+
+  .nav-tab.active { color: var(--text-primary); }
+
+  .nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 20%; right: 20%;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* HEADER */
+  .header {
+    padding: 1.75rem 1.5rem 1.25rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 50px; height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 6px;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+  }
+
+  /* SETTINGS */
+  .settings {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .setting-group {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+  }
+
+  .setting-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .toggle-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  .toggle-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .toggle-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+  .toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* GENERATE BUTTON */
+  .generate-wrap {
+    padding: 0.5rem 1.5rem 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .generate-btn {
+    width: 100%;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .generate-btn:hover {
+    background: var(--accent-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px var(--accent-glow);
+  }
+
+  .generate-btn:active { transform: translateY(0); }
+
+  /* OVERLAYS */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 10, 0.97);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .overlay.active { display: flex; }
+
+  /* WHEEL */
+  .wheel-container {
+    position: relative;
+    width: 260px;
+    height: 260px;
+  }
+
+  .wheel-svg { width: 100%; height: 100%; }
+
+  .wheel-svg.spinning {
+    animation: wheelSpin 2s cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
+  }
+
+  @keyframes wheelSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(1800deg); }
+  }
+
+  .wheel-pointer {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid var(--accent);
+    filter: drop-shadow(0 0 6px var(--accent-glow));
+    z-index: 2;
+  }
+
+  .wheel-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px; height: 50px;
+    background: var(--bg-primary);
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .wheel-center-dot {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .wheel-status {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-top: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .wheel-status.visible { opacity: 1; }
+
+  /* COUNTDOWN */
+  .countdown-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10rem;
+    color: var(--accent);
+    line-height: 1;
+    animation: countPulse 0.6s ease;
+    text-shadow: 0 0 60px var(--accent-glow);
+  }
+
+  .countdown-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 1rem;
+  }
+
+  .countdown-start {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6rem;
+    color: var(--success);
+    animation: countPulse 0.5s ease;
+    text-shadow: 0 0 60px var(--success-glow);
+  }
+
+  .countdown-skip {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-top: 2.5rem;
+    opacity: 0.6;
+  }
+
+  @keyframes countPulse {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* WORKOUT CONTAINER */
+  .workout-container {
+    padding: 0 1.5rem 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .workout-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+  }
+
+  .workout-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+  }
+
+  .summary-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+
+  .summary-stat .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+
+  .summary-stat .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* EXERCISE CARD */
+  .exercise-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    margin-bottom: 0.65rem;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .exercise-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .exercise-card[data-cat="posterior"]::before { background: var(--tag-posterior); }
+  .exercise-card[data-cat="quad"]::before { background: var(--tag-quad); }
+  .exercise-card[data-cat="push"]::before { background: var(--tag-push); }
+  .exercise-card[data-cat="pull"]::before { background: var(--tag-pull); }
+  .exercise-card[data-cat="core"]::before { background: var(--tag-core); }
+  .exercise-card[data-cat="fullbody"]::before { background: var(--tag-fullbody); }
+
+  @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+  .exercise-card:nth-child(1) { animation-delay: 0.05s; }
+  .exercise-card:nth-child(2) { animation-delay: 0.1s; }
+  .exercise-card:nth-child(3) { animation-delay: 0.15s; }
+  .exercise-card:nth-child(4) { animation-delay: 0.2s; }
+  .exercise-card:nth-child(5) { animation-delay: 0.25s; }
+  .exercise-card:nth-child(6) { animation-delay: 0.3s; }
+  .exercise-card:nth-child(7) { animation-delay: 0.35s; }
+
+  .exercise-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--border-accent);
+    position: absolute;
+    top: 0.6rem;
+    right: 0.9rem;
+    line-height: 1;
+  }
+
+  .exercise-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    display: inline-block;
+    margin-bottom: 0.4rem;
+  }
+
+  .exercise-tag[data-cat="posterior"] { background: rgba(255,77,0,0.12); color: var(--tag-posterior); }
+  .exercise-tag[data-cat="quad"] { background: rgba(245,158,11,0.12); color: var(--tag-quad); }
+  .exercise-tag[data-cat="push"] { background: rgba(59,130,246,0.12); color: var(--tag-push); }
+  .exercise-tag[data-cat="pull"] { background: rgba(139,92,246,0.12); color: var(--tag-pull); }
+  .exercise-tag[data-cat="core"] { background: rgba(45,212,160,0.12); color: var(--tag-core); }
+  .exercise-tag[data-cat="fullbody"] { background: rgba(236,72,153,0.12); color: var(--tag-fullbody); }
+
+  .exercise-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    padding-right: 2rem;
+  }
+
+  .exercise-muscles {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .per-side-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+    color: var(--warn);
+    background: rgba(245, 158, 11, 0.1);
+    padding: 0.15rem 0.45rem;
+    border-radius: 100px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .exercise-prescription {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .prescription-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+
+  .prescription-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .exercise-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+    margin-top: 0.3rem;
+    line-height: 1.4;
+  }
+
+  .swap-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 2.6rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+
+  .swap-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ACTION BUTTONS */
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    padding: 0.85rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .accept-btn { background: var(--success); color: #0a0a0a; }
+  .accept-btn:hover { background: #34eab5; box-shadow: 0 6px 24px var(--success-glow); }
+
+  .regen-btn { background: transparent; border: 1px solid var(--border) !important; color: var(--text-secondary); }
+  .regen-btn:hover { border-color: var(--text-muted) !important; color: var(--text-primary); }
+
+  /* SET CHECKBOXES */
+  .set-checkboxes {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .set-checkboxes-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .set-checkbox {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .set-checkbox:hover { border-color: var(--accent); }
+
+  .set-checkbox.checked {
+    background: var(--success);
+    border-color: var(--success);
+    color: #0a0a0a;
+    font-size: 0.9rem;
+  }
+
+  .exercise-card.completed-exercise { opacity: 0.45; }
+  .exercise-card.completed-exercise::before { background: var(--success) !important; }
+
+  /* BOTTOM BUTTONS */
+  .bottom-actions {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .complete-workout-btn {
+    width: 100%;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 4px;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--success);
+    color: #0a0a0a;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .complete-workout-btn:hover {
+    background: #34eab5;
+    box-shadow: 0 6px 24px var(--success-glow);
+  }
+
+  .cancel-workout-btn {
+    width: 100%;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cancel-workout-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  /* REST TIMER */
+  .rest-timer-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 10, 0.95);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .rest-timer-overlay.active { display: flex; }
+
+  .rest-timer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .rest-timer-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 8rem;
+    line-height: 1;
+    color: var(--accent);
+    text-shadow: 0 0 40px var(--accent-glow);
+    transition: color 0.3s;
+  }
+
+  .rest-timer-value.warning { color: var(--warn); text-shadow: 0 0 40px rgba(245,158,11,0.3); }
+  .rest-timer-value.done { color: var(--success); text-shadow: 0 0 40px var(--success-glow); }
+
+  .rest-timer-ring {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rest-timer-ring svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .rest-timer-ring circle {
+    fill: none;
+    stroke-width: 4;
+  }
+
+  .rest-ring-bg { stroke: var(--border); }
+
+  .rest-ring-progress {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+
+  .rest-ring-progress.warning { stroke: var(--warn); }
+  .rest-ring-progress.done { stroke: var(--success); }
+
+  .rest-timer-skip {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    padding: 0.8rem 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s;
+  }
+
+  .rest-timer-skip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CONFIRM MODAL */
+  .confirm-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 10, 0.9);
+    z-index: 1001;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .confirm-modal.active { display: flex; }
+
+  .confirm-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.75rem;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .confirm-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    margin-bottom: 0.6rem;
+  }
+
+  .confirm-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .confirm-btn {
+    flex: 1;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    padding: 0.7rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .confirm-yes {
+    background: var(--success);
+    color: #0a0a0a;
+  }
+
+  .confirm-cancel-btn {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .confirm-no {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  /* COMPLETION */
+  .completion-check {
+    width: 80px; height: 80px;
+    border: 3px solid var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--success);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .completion-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 5px;
+    margin-top: 1.5rem;
+  }
+
+  .completion-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+  }
+
+  .completion-dismiss {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    padding: 0.8rem 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: all 0.2s;
+  }
+
+  .completion-dismiss:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* LOG */
+  .log-container { padding: 1.5rem; max-width: 100%; overflow-x: auto; }
+
+  .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .log-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+  }
+
+  .log-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+  }
+
+  .log-clear-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .log-clear-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  .log-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .log-table {
+    width: 100%;
+    min-width: 400px;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+
+  .log-table th, .log-table td {
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .log-table th {
+    background: var(--bg-card);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    position: sticky;
+    top: 0;
+  }
+
+  .log-table th:first-child,
+  .log-table td:first-child {
+    text-align: left;
+    position: sticky;
+    left: 0;
+    background: var(--bg-primary);
+    z-index: 2;
+    min-width: 150px;
+    padding-left: 0.75rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .log-table th:first-child { background: var(--bg-card); z-index: 3; }
+  .log-table tr:last-child td { border-bottom: none; }
+  .log-table tbody tr:hover td { background: var(--bg-card); }
+  .log-table tbody tr:hover td:first-child { background: var(--bg-card); }
+
+  .log-mark { color: var(--accent); font-weight: 700; font-size: 0.85rem; }
+
+  .log-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .cat-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .cat-dot.posterior { background: var(--tag-posterior); }
+  .cat-dot.quad { background: var(--tag-quad); }
+  .cat-dot.push { background: var(--tag-push); }
+  .cat-dot.pull { background: var(--tag-pull); }
+  .cat-dot.core { background: var(--tag-core); }
+  .cat-dot.fullbody { background: var(--tag-fullbody); }
+
+  .empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-muted); }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.3; }
+  .empty-text { font-size: 0.8rem; line-height: 1.6; }
+
+  .rest-note {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 0.75rem 0 0.25rem;
+  }
+
+  @media (min-width: 480px) {
+    .logo { font-size: 3.2rem; }
+    .settings, .workout-container, .generate-wrap { padding-left: 2rem; padding-right: 2rem; }
+    .log-container { padding: 2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('forge')">FORGE</button>
+    <button class="nav-tab" onclick="switchView('log')">WORKOUT LOG</button>
+  </nav>
+
+  <div class="view active" id="forgeView">
+    <header class="header">
+      <div class="logo">KB <span>FORGE</span></div>
+      <div class="tagline">Kettlebell Workout Generator</div>
+    </header>
+    <div class="settings" id="settingsPanel">
+      <div class="setting-group">
+        <div class="setting-label">Training Goal</div>
+        <div class="toggle-row" id="goalToggles">
+          <button class="toggle-btn active" data-value="strength">Strength</button>
+          <button class="toggle-btn" data-value="hypertrophy">Hypertrophy</button>
+          <button class="toggle-btn" data-value="mixed">Mixed</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Session Type</div>
+        <div class="toggle-row" id="sessionToggles">
+          <button class="toggle-btn active" data-value="balanced">Balanced</button>
+          <button class="toggle-btn" data-value="lower">Lower Focus</button>
+          <button class="toggle-btn" data-value="upper">Upper Focus</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Duration</div>
+        <div class="toggle-row" id="durationToggles">
+          <button class="toggle-btn active" data-value="short">~25 Min</button>
+          <button class="toggle-btn" data-value="long">~45 Min</button>
+        </div>
+      </div>
+    </div>
+    <div class="generate-wrap" id="generateWrap">
+      <button class="generate-btn" onclick="startForge()">FORGE WORKOUT</button>
+    </div>
+    <div class="workout-container" id="workoutContainer">
+      <div class="empty-state">
+        <div class="empty-icon">&#9878;</div>
+        <div class="empty-text">Hit the button to forge<br>your kettlebell workout</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="logView">
+    <div class="log-container" id="logContainer"></div>
+  </div>
+</div>
+
+<!-- WHEEL -->
+<div class="overlay" id="wheelOverlay">
+  <div class="wheel-container">
+    <div class="wheel-pointer"></div>
+    <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 260 260"></svg>
+    <div class="wheel-center"><div class="wheel-center-dot"></div></div>
+  </div>
+  <div class="wheel-status" id="wheelStatus">FORGING YOUR WORKOUT...</div>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="overlay" id="countdownOverlay">
+  <div id="countdownContent"></div>
+  <div class="countdown-label" id="countdownLabel">GET READY</div>
+  <div class="countdown-skip">TAP TO SKIP</div>
+</div>
+
+<!-- REST TIMER -->
+<div class="rest-timer-overlay" id="restTimerOverlay">
+  <div class="rest-timer-label">REST</div>
+  <div class="rest-timer-ring">
+    <svg viewBox="0 0 200 200">
+      <circle class="rest-ring-bg" cx="100" cy="100" r="90"/>
+      <circle class="rest-ring-progress" id="restRingProgress" cx="100" cy="100" r="90"
+        stroke-dasharray="565.49" stroke-dashoffset="0"/>
+    </svg>
+    <div class="rest-timer-value" id="restTimerValue">45</div>
+  </div>
+  <button class="rest-timer-skip" onclick="skipRest()">SKIP REST</button>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-modal" id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-buttons">
+      <button class="confirm-btn confirm-yes" id="confirmYes">YES</button>
+      <button class="confirm-btn confirm-no" id="confirmNo" onclick="closeConfirm()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETION -->
+<div class="overlay" id="completionOverlay">
+  <div class="completion-check">&#10003;</div>
+  <div class="completion-text">WORKOUT COMPLETE</div>
+  <div class="completion-sub" id="completionSub"></div>
+  <button class="completion-dismiss" onclick="dismissCompletion()">DONE</button>
+</div>
+
+<script>
+// ===== EXERCISE DATA =====
+// Each exercise has a `unilateral` flag for per-side display
+const exercises = {
+  posterior: [
+    { name: "Double KB Deadlift", muscles: "Glutes, hamstrings, erectors", note: "Reset each rep. Heaviest loading potential.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Single-Leg RDL", muscles: "Hamstrings, glutes, stabilizers", note: "Controlled eccentric, pause at bottom.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats", note: "Powerful hip snap — treat as strength work.", sets:{s:3,h:4,m:3}, reps:{s:8,h:12,m:10}, unilateral: false },
+    { name: "Staggered Stance DL", muscles: "Hamstrings, glutes", note: "Bridges bilateral and single-leg work.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "KB Good Morning", muscles: "Hamstrings, erectors", note: "Constant tension. Squeeze glutes at top.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: false }
+  ],
+  quad: [
+    { name: "Double Front Squat", muscles: "Quads, glutes, core", note: "Torso upright, elbows high.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Goblet Squat", muscles: "Quads, glutes", note: "3s down, 1s pause, explode up.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Bulgarian Split Squat", muscles: "Quads, glutes", note: "KBs in rack. Front shin vertical.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Cossack Squat", muscles: "Quads, adductors", note: "Full depth. Straight leg grounded.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Walking Lunge", muscles: "Quads, glutes", note: "Double KBs in rack. Controlled steps.", sets:{s:2,h:3,m:3}, reps:{s:8,h:12,m:10}, unilateral: true }
+  ],
+  push: [
+    { name: "Double Military Press", muscles: "Shoulders, triceps", note: "Strict — no leg drive. Squeeze glutes.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Single-Arm Press", muscles: "Shoulder, triceps, core", note: "Brace hard. Control the negative.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true },
+    { name: "Push Press", muscles: "Shoulders, triceps, legs", note: "Short dip-drive, lock out hard.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Floor Press", muscles: "Chest, triceps", note: "Pause when elbows touch floor.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Bottoms-Up Press", muscles: "Shoulder stabilizers, grip", note: "Lighter bell. Crush the handle.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true }
+  ],
+  pull: [
+    { name: "Gorilla Row", muscles: "Lats, upper back", note: "Alternate from floor. Squeeze at top.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Single-Arm Row", muscles: "Lats, rhomboids", note: "Drive elbow past ribcage.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Renegade Row", muscles: "Lats, core", note: "Wide stance. Minimize hip rotation.", sets:{s:2,h:3,m:2}, reps:{s:6,h:8,m:8}, unilateral: true },
+    { name: "High Pull", muscles: "Upper back, rear delts, traps", note: "Explosive hip drive into elbow-high pull.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Tall Kneeling Row", muscles: "Lats, rhomboids", note: "Eliminates momentum. Pure isolation.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: true }
+  ],
+  core: [
+    { name: "Turkish Get-Up", muscles: "Full core, shoulders, hips", note: "Own every position. Deliberate.", sets:{s:2,h:2,m:2}, reps:{s:2,h:3,m:2}, unilateral: true },
+    { name: "Suitcase Carry", muscles: "Obliques, QL", note: "Heavy. Stand tall, no leaning.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
+    { name: "Windmill", muscles: "Obliques, hip stabilizers", note: "Loaded overhead. Eyes on bell.", sets:{s:2,h:3,m:2}, reps:{s:5,h:6,m:5}, unilateral: true },
+    { name: "Waiter Walk", muscles: "Deep core, shoulder stabilizers", note: "Lock arm out. Brace everything.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
+    { name: "Dead Bug Pullover", muscles: "Anterior core", note: "KB overhead, extend opposite leg.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: false }
+  ],
+  fullbody: [
+    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats, core", note: "Powerful hip snap — the ultimate KB exercise.", sets:{s:3,h:4,m:3}, reps:{s:10,h:15,m:12}, unilateral: false },
+    { name: "Clean and Press", muscles: "Full body", note: "The gold standard. Heavy doubles.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
+    { name: "Clean & Jerk", muscles: "Full body", note: "Use leg drive on the jerk.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
+    { name: "Double Clean", muscles: "Posterior chain, grip, core", note: "Aggressive hip snap into rack.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Snatch", muscles: "Posterior chain, shoulders", note: "Heavy bell, low reps. Punch through.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: true },
+    { name: "Armor Building Complex", muscles: "Full body", note: "2 cleans + 1 press + 3 front squats.", sets:{s:2,h:3,m:3}, reps:{s:1,h:1,m:1}, unit:"complex", unilateral: false }
+  ]
+};
+
+const catMeta = {
+  posterior: { label: "Posterior Chain", color: "#ff4d00" },
+  quad: { label: "Quad Dominant", color: "#f59e0b" },
+  push: { label: "Upper Push", color: "#3b82f6" },
+  pull: { label: "Upper Pull", color: "#8b5cf6" },
+  core: { label: "Core", color: "#2dd4a0" },
+  fullbody: { label: "Full Body", color: "#ec4899" }
+};
+
+// Optimal exercise order: most demanding first
+// fullbody > posterior > quad > push > pull > core
+const catOrder = { fullbody: 0, posterior: 1, quad: 2, push: 3, pull: 4, core: 5 };
+
+const allExNames = [];
+Object.entries(exercises).forEach(([cat, list]) => {
+  list.forEach(ex => {
+    if (!allExNames.find(e => e.name === ex.name)) allExNames.push({ name: ex.name, category: cat });
+  });
+});
+
+let currentGoal = 'strength', currentSession = 'balanced', currentDuration = 'short';
+let currentWorkout = [], workoutActive = false, setStates = [];
+let restTimerId = null, restTimeLeft = 0;
+let countdownSkipped = false, countdownTimeoutId = null;
+
+// Toggles
+document.querySelectorAll('.toggle-row').forEach(row => {
+  row.addEventListener('click', e => {
+    const btn = e.target.closest('.toggle-btn');
+    if (!btn || workoutActive) return;
+    row.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (row.id === 'goalToggles') currentGoal = btn.dataset.value;
+    if (row.id === 'sessionToggles') currentSession = btn.dataset.value;
+    if (row.id === 'durationToggles') currentDuration = btn.dataset.value;
+  });
+});
+
+function switchView(view) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  if (view === 'forge') {
+    document.querySelectorAll('.nav-tab')[0].classList.add('active');
+    document.getElementById('forgeView').classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-tab')[1].classList.add('active');
+    document.getElementById('logView').classList.add('active');
+    renderLog();
+  }
+}
+
+function pick(arr, exclude) {
+  const f = exclude ? arr.filter(e => e.name !== exclude.name) : arr;
+  return f[Math.floor(Math.random() * f.length)];
+}
+
+function gk() { return currentGoal === 'strength' ? 's' : currentGoal === 'hypertrophy' ? 'h' : 'm'; }
+
+function getCats() {
+  const isLong = currentDuration === 'long';
+  if (currentSession === 'balanced') {
+    if (isLong) {
+      // ~45 min: all 6 categories + extra posterior or quad
+      const extra = Math.random() > 0.5 ? 'posterior' : 'quad';
+      return ['posterior','quad','push','pull','core','fullbody', extra];
+    }
+    return ['posterior','quad','push','pull', Math.random()>0.5?'core':'fullbody'];
+  }
+  if (currentSession === 'lower') {
+    if (isLong) return ['posterior','quad','push','pull','core','posterior','quad'];
+    return ['posterior','quad','push','pull','core'];
+  }
+  // upper
+  if (isLong) return ['posterior','push','pull','core','fullbody','push','pull'];
+  return ['posterior','push','pull','core','fullbody'];
+}
+
+function buildWorkout() {
+  const cats = getCats();
+  const isLong = currentDuration === 'long';
+  const usedNames = new Set();
+  const workout = [];
+
+  for (const cat of cats) {
+    // Avoid picking the same exercise twice in the same workout
+    const available = exercises[cat].filter(e => !usedNames.has(e.name));
+    if (available.length === 0) continue;
+    const ex = pick(available);
+    usedNames.add(ex.name);
+    const g = gk();
+    // Long sessions: bump sets +1 for hypertrophy/mixed (more volume at shorter rest)
+    // Strength long sessions get volume from extra exercises, not extra sets
+    const setBump = (isLong && currentGoal !== 'strength') ? 1 : 0;
+    const setsN = ex.sets[g] + setBump;
+    workout.push({ ...ex, category: cat, setsN, repsN: ex.reps[g], displayUnit: ex.unit||'reps' });
+  }
+  // Sort by optimal order: most demanding compound movements first
+  workout.sort((a, b) => catOrder[a.category] - catOrder[b.category]);
+  return workout;
+}
+
+// Time estimate: goal-specific minutes per set
+// Strength: heavy loads, 90-120s rest → ~2.5 min/set
+// Hypertrophy: moderate loads, 45-60s rest → ~1.7 min/set
+// Mixed: ~2.0 min/set
+// Short targets ~25 min, Long targets ~45 min
+function estimateTime(workout) {
+  const totalSets = workout.reduce((s, e) => s + e.setsN, 0);
+  const minPerSet = { strength: 2.5, hypertrophy: 1.7, mixed: 2.0 };
+  return Math.round(totalSets * (minPerSet[currentGoal] || 2.0));
+}
+
+// ===== WHEEL =====
+function drawWheel() {
+  const cats = Object.entries(catMeta);
+  const svg = document.getElementById('wheelSvg');
+  const cx=130, cy=130, r=120, n=cats.length, angle=(2*Math.PI)/n;
+  let html = '';
+  cats.forEach(([key, meta], i) => {
+    const a1=angle*i-Math.PI/2, a2=angle*(i+1)-Math.PI/2;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    html += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z" fill="${meta.color}" opacity="0.85" stroke="#0a0a0a" stroke-width="2"/>`;
+    const midA=(a1+a2)/2;
+    const tx=cx+(r*0.62)*Math.cos(midA), ty=cy+(r*0.62)*Math.sin(midA);
+    const rot=(midA*180/Math.PI)+(midA>Math.PI/2&&midA<3*Math.PI/2?180:0);
+    html += `<text x="${tx}" y="${ty}" fill="#fff" font-family="Bebas Neue,sans-serif" font-size="11" letter-spacing="1" text-anchor="middle" dominant-baseline="central" transform="rotate(${rot},${tx},${ty})">${meta.label.toUpperCase()}</text>`;
+  });
+  svg.innerHTML = html;
+}
+
+function startForge() {
+  if (workoutActive) return;
+  drawWheel();
+  const ov = document.getElementById('wheelOverlay');
+  const svg = document.getElementById('wheelSvg');
+  const st = document.getElementById('wheelStatus');
+  ov.classList.add('active');
+  svg.classList.remove('spinning');
+  st.classList.remove('visible');
+  void svg.offsetWidth;
+  svg.classList.add('spinning');
+  setTimeout(() => st.classList.add('visible'), 800);
+  setTimeout(() => {
+    ov.classList.remove('active');
+    svg.classList.remove('spinning');
+    st.classList.remove('visible');
+    currentWorkout = buildWorkout();
+    renderPreview();
+  }, 2200);
+}
+
+// ===== PREVIEW =====
+function renderPreview() {
+  workoutActive = false;
+  const c = document.getElementById('workoutContainer');
+  const gl = {strength:'STRENGTH',hypertrophy:'HYPERTROPHY',mixed:'MIXED'};
+  const ts = currentWorkout.reduce((s,e) => s+e.setsN, 0);
+  const est = estimateTime(currentWorkout);
+
+  document.getElementById('settingsPanel').style.display = '';
+  document.getElementById('generateWrap').style.display = 'none';
+
+  let h = `
+    <div class="workout-header"><div class="workout-title">YOUR WORKOUT</div><div class="workout-meta">${gl[currentGoal]}</div></div>
+    <div class="summary-bar">
+      <div class="summary-stat"><div class="stat-value">${currentWorkout.length}</div><div class="stat-label">Exercises</div></div>
+      <div class="summary-stat"><div class="stat-value">${ts}</div><div class="stat-label">Total Sets</div></div>
+      <div class="summary-stat"><div class="stat-value">~${est}</div><div class="stat-label">Minutes</div></div>
+    </div>`;
+
+  currentWorkout.forEach((ex, i) => {
+    const m = catMeta[ex.category];
+    const rl = ex.displayUnit==='30m'?'× 30m':ex.displayUnit==='complex'?'Rounds':'Reps';
+    const sideTag = ex.unilateral ? '<span class="per-side-badge">EACH SIDE</span>' : '';
+    h += `<div class="exercise-card" data-cat="${ex.category}" style="animation-delay:${i*0.07}s">
+      <span class="exercise-num">${exNum(i)}</span>
+      <button class="swap-btn" onclick="swapEx(${i})" title="Swap">&#x21bb;</button>
+      <span class="exercise-tag" data-cat="${ex.category}">${m.label}</span>
+      <div class="exercise-name">${ex.name}${sideTag}</div>
+      <div class="exercise-muscles">${ex.muscles}</div>
+      <div class="exercise-prescription">
+        <div class="prescription-item"><span class="prescription-value">${ex.setsN}</span><span class="prescription-label">Sets</span></div>
+        <div class="prescription-item"><span class="prescription-value">${ex.displayUnit==='30m'?'30':ex.repsN}</span><span class="prescription-label">${rl}</span></div>
+      </div>
+      <div class="exercise-note">${ex.note}</div>
+    </div>`;
+  });
+
+  h += `<div class="rest-note">45s REST BETWEEN SETS · TAP SET TO START TIMER</div>
+    <div class="action-buttons">
+      <button class="action-btn accept-btn" onclick="acceptWorkout()">ACCEPT</button>
+      <button class="action-btn regen-btn" onclick="startForge()">REFORGE</button>
+    </div>`;
+  c.innerHTML = h;
+  c.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function exNum(i) { return String(i+1).padStart(2, '0'); }
+
+function swapEx(i) {
+  if (workoutActive) return;
+  const item = currentWorkout[i];
+  const usedNames = new Set(currentWorkout.map(e => e.name));
+  usedNames.delete(item.name);
+  const available = exercises[item.category].filter(e => !usedNames.has(e.name));
+  if (available.length === 0) return; // no alternatives left
+  const ne = pick(available);
+  const g = gk();
+  const isLong = currentDuration === 'long';
+  const setBump = (isLong && currentGoal !== 'strength') ? 1 : 0;
+  const setsN = ne.sets[g] + setBump;
+  currentWorkout[i] = { ...ne, category:item.category, setsN, repsN:ne.reps[g], displayUnit:ne.unit||'reps' };
+  renderPreview();
+}
+
+// ===== COUNTDOWN (tap to skip) =====
+function acceptWorkout() {
+  const ov = document.getElementById('countdownOverlay');
+  const ct = document.getElementById('countdownContent');
+  countdownSkipped = false;
+  ov.classList.add('active');
+
+  const seq = ['3','2','1','START'];
+  let i = 0;
+
+  function skipHandler() {
+    countdownSkipped = true;
+    if (countdownTimeoutId) clearTimeout(countdownTimeoutId);
+    ov.removeEventListener('click', skipHandler);
+    ov.classList.remove('active');
+    startActive();
+  }
+
+  ov.addEventListener('click', skipHandler);
+
+  function next() {
+    if (countdownSkipped) return;
+    if (i >= seq.length) {
+      ov.removeEventListener('click', skipHandler);
+      ov.classList.remove('active');
+      startActive();
+      return;
+    }
+    const v = seq[i];
+    ct.innerHTML = v==='START' ? `<div class="countdown-start">${v}</div>` : `<div class="countdown-number">${v}</div>`;
+    i++;
+    countdownTimeoutId = setTimeout(next, v==='START'?600:800);
+  }
+  next();
+}
+
+// ===== ACTIVE WORKOUT =====
+function startActive() {
+  workoutActive = true;
+  setStates = currentWorkout.map(ex => new Array(ex.setsN).fill(false));
+  document.getElementById('settingsPanel').style.display = 'none';
+  document.getElementById('generateWrap').style.display = 'none';
+  renderActive();
+}
+
+function renderActive() {
+  const c = document.getElementById('workoutContainer');
+  const gl = {strength:'STRENGTH',hypertrophy:'HYPERTROPHY',mixed:'MIXED'};
+  let h = `<div class="workout-header"><div class="workout-title">ACTIVE WORKOUT</div><div class="workout-meta">${gl[currentGoal]}</div></div>`;
+
+  currentWorkout.forEach((ex, i) => {
+    const m = catMeta[ex.category];
+    const done = setStates[i].every(Boolean);
+    const rl = ex.displayUnit==='30m'?'× 30m':ex.displayUnit==='complex'?'Rounds':'Reps';
+    const sideTag = ex.unilateral ? '<span class="per-side-badge">EACH SIDE</span>' : '';
+    h += `<div class="exercise-card ${done?'completed-exercise':''}" data-cat="${ex.category}" style="animation-delay:${i*0.05}s">
+      <span class="exercise-num">${exNum(i)}</span>
+      <span class="exercise-tag" data-cat="${ex.category}">${m.label}</span>
+      <div class="exercise-name">${ex.name}${sideTag}</div>
+      <div class="exercise-muscles">${ex.muscles}</div>
+      <div class="exercise-prescription">
+        <div class="prescription-item"><span class="prescription-value">${ex.setsN}</span><span class="prescription-label">Sets</span></div>
+        <div class="prescription-item"><span class="prescription-value">${ex.displayUnit==='30m'?'30':ex.repsN}</span><span class="prescription-label">${rl}</span></div>
+      </div>
+      <div class="set-checkboxes">
+        <span class="set-checkboxes-label">Sets</span>
+        ${setStates[i].map((ck,s) => `<button class="set-checkbox ${ck?'checked':''}" onclick="togSet(${i},${s})">${ck?'&#10003;':(s+1)}</button>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  h += `<div class="bottom-actions">
+    <button class="complete-workout-btn" onclick="confirmComplete()">COMPLETE WORKOUT</button>
+    <button class="cancel-workout-btn" onclick="confirmCancel()">CANCEL WORKOUT</button>
+  </div>`;
+  c.innerHTML = h;
+}
+
+function togSet(ei, si) {
+  // Toggle the set
+  const wasChecked = setStates[ei][si];
+  setStates[ei][si] = !wasChecked;
+  renderActive();
+
+  // If we just checked a set (not unchecked), start rest timer
+  if (!wasChecked) {
+    startRestTimer();
+  }
+}
+
+// ===== REST TIMER =====
+const REST_DURATION = 45;
+const CIRCUMFERENCE = 2 * Math.PI * 90; // matches r=90 in SVG
+
+function startRestTimer() {
+  // Clear any existing timer
+  if (restTimerId) { clearInterval(restTimerId); restTimerId = null; }
+
+  restTimeLeft = REST_DURATION;
+  const overlay = document.getElementById('restTimerOverlay');
+  const valueEl = document.getElementById('restTimerValue');
+  const ringEl = document.getElementById('restRingProgress');
+
+  overlay.classList.add('active');
+  valueEl.textContent = restTimeLeft;
+  valueEl.className = 'rest-timer-value';
+  ringEl.style.strokeDashoffset = '0';
+  ringEl.className = 'rest-ring-progress';
+
+  restTimerId = setInterval(() => {
+    restTimeLeft--;
+    valueEl.textContent = Math.max(restTimeLeft, 0);
+
+    // Update ring
+    const progress = 1 - (restTimeLeft / REST_DURATION);
+    ringEl.style.strokeDashoffset = (progress * CIRCUMFERENCE).toFixed(1);
+
+    // Color changes
+    if (restTimeLeft <= 5 && restTimeLeft > 0) {
+      valueEl.className = 'rest-timer-value warning';
+      ringEl.className = 'rest-ring-progress warning';
+    }
+
+    if (restTimeLeft <= 0) {
+      clearInterval(restTimerId);
+      restTimerId = null;
+      valueEl.textContent = 'GO';
+      valueEl.className = 'rest-timer-value done';
+      ringEl.className = 'rest-ring-progress done';
+      ringEl.style.strokeDashoffset = CIRCUMFERENCE.toFixed(1);
+      // Auto-dismiss after 1.5s
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, 1500);
+    }
+  }, 1000);
+}
+
+function skipRest() {
+  if (restTimerId) { clearInterval(restTimerId); restTimerId = null; }
+  document.getElementById('restTimerOverlay').classList.remove('active');
+}
+
+// ===== CONFIRM MODALS =====
+function showConfirm(title, text, yesBtnText, yesBtnClass, onYes) {
+  const modal = document.getElementById('confirmModal');
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  const yesBtn = document.getElementById('confirmYes');
+  yesBtn.textContent = yesBtnText;
+  yesBtn.className = 'confirm-btn ' + yesBtnClass;
+  yesBtn.onclick = () => { closeConfirm(); onYes(); };
+  modal.classList.add('active');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('active');
+}
+
+function confirmComplete() {
+  const checkedSets = setStates.flat().filter(Boolean).length;
+  const totalSets = setStates.flat().length;
+  if (checkedSets < totalSets) {
+    showConfirm(
+      'FINISH EARLY?',
+      `You've completed ${checkedSets} of ${totalSets} sets. Log this workout anyway?`,
+      'LOG IT',
+      'confirm-yes',
+      completeWorkout
+    );
+  } else {
+    completeWorkout();
+  }
+}
+
+function confirmCancel() {
+  showConfirm(
+    'CANCEL WORKOUT?',
+    'This workout will not be saved to your log.',
+    'CANCEL WORKOUT',
+    'confirm-cancel-btn',
+    cancelWorkout
+  );
+}
+
+function completeWorkout() {
+  if (restTimerId) { clearInterval(restTimerId); restTimerId = null; }
+  document.getElementById('restTimerOverlay').classList.remove('active');
+
+  const log = getLog();
+  log.push({ date: new Date().toISOString(), exercises: currentWorkout.map(e=>e.name), goal: currentGoal });
+  saveLog(log);
+  const ov = document.getElementById('completionOverlay');
+  const checkedSets = setStates.flat().filter(Boolean).length;
+  const totalSets = setStates.flat().length;
+  document.getElementById('completionSub').textContent = `${currentWorkout.length} exercises · ${checkedSets}/${totalSets} sets completed`;
+  ov.classList.add('active');
+}
+
+function cancelWorkout() {
+  if (restTimerId) { clearInterval(restTimerId); restTimerId = null; }
+  document.getElementById('restTimerOverlay').classList.remove('active');
+  resetToHome();
+}
+
+function dismissCompletion() {
+  document.getElementById('completionOverlay').classList.remove('active');
+  resetToHome();
+}
+
+function resetToHome() {
+  workoutActive = false;
+  currentWorkout = [];
+  setStates = [];
+  document.getElementById('settingsPanel').style.display = '';
+  document.getElementById('generateWrap').style.display = '';
+  document.getElementById('workoutContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">&#9878;</div><div class="empty-text">Hit the button to forge<br>your kettlebell workout</div></div>`;
+}
+
+// ===== LOG =====
+function getLog() { try { return JSON.parse(localStorage.getItem('kb_forge_log')||'[]'); } catch { return []; } }
+function saveLog(l) { localStorage.setItem('kb_forge_log', JSON.stringify(l)); }
+
+function clearLog() {
+  if (confirm('Clear all workout history? This cannot be undone.')) {
+    localStorage.removeItem('kb_forge_log');
+    renderLog();
+  }
+}
+
+function renderLog() {
+  const c = document.getElementById('logContainer');
+  const log = getLog();
+  if (!log.length) {
+    c.innerHTML = `<div class="log-header"><div class="log-title">WORKOUT LOG</div></div><div class="log-empty">No workouts logged yet.<br>Forge and complete a workout to see it here.</div>`;
+    return;
+  }
+  const sessions = log.slice(-20).reverse();
+  let h = `<div class="log-header"><div><div class="log-title">WORKOUT LOG</div><div class="log-count">${log.length} SESSION${log.length!==1?'S':''} LOGGED</div></div><button class="log-clear-btn" onclick="clearLog()">CLEAR LOG</button></div>
+  <div class="log-table-wrap"><table class="log-table"><thead><tr><th>Exercise</th>
+    ${sessions.map(s => { const d=new Date(s.date); return `<th>${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</th>`; }).join('')}
+  </tr></thead><tbody>`;
+
+  allExNames.forEach(({name, category}) => {
+    const has = sessions.some(s => s.exercises.includes(name));
+    if (!has) return;
+    h += `<tr><td><span class="cat-dot ${category}"></span>${name}</td>
+      ${sessions.map(s => `<td>${s.exercises.includes(name)?'<span class="log-mark">&#10005;</span>':''}</td>`).join('')}
+    </tr>`;
+  });
+
+  h += `</tbody></table></div>`;
+  c.innerHTML = h;
+}
+</script>
+</body>
+</html>
