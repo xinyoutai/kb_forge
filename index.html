@@ -235,7 +235,7 @@
   .wheel-svg { width: 100%; height: 100%; }
 
   .wheel-svg.spinning {
-    animation: wheelSpin 2s cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
+    animation: wheelSpin 1.2s cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
   }
 
   @keyframes wheelSpin {
@@ -425,10 +425,10 @@
 
   .exercise-num {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     color: var(--border-accent);
     position: absolute;
-    top: 0.6rem;
+    top: 0.5rem;
     right: 0.9rem;
     line-height: 1;
   }
@@ -509,19 +509,58 @@
 
   .swap-btn {
     position: absolute;
-    top: 0.55rem;
-    right: 2.6rem;
+    top: 0.45rem;
+    right: 2.8rem;
     background: none;
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.35rem 0.5rem;
-    font-size: 0.95rem;
+    padding: 0.4rem 0.55rem;
+    font-size: 1.15rem;
     transition: all 0.2s;
   }
 
   .swap-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .info-btn {
+    position: absolute;
+    top: 0.45rem;
+    right: 4.8rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .info-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .info-btn.active-info { border-color: var(--accent); color: var(--accent); background: rgba(139, 92, 246, 0.1); }
+
+  .exercise-desc {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    padding: 0.65rem 0.75rem;
+    margin-top: 0.5rem;
+    background: rgba(139, 92, 246, 0.06);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: var(--radius-sm);
+  }
+
+  .exercise-desc.visible { display: block; }
 
   /* ACTION BUTTONS */
   .action-buttons {
@@ -1087,47 +1126,48 @@
 // Each exercise has a `unilateral` flag for per-side display
 const exercises = {
   posterior: [
-    { name: "Double KB Deadlift", muscles: "Glutes, hamstrings, erectors", note: "Reset each rep. Heaviest loading potential.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
-    { name: "Single-Leg RDL", muscles: "Hamstrings, glutes, stabilizers", note: "Controlled eccentric, pause at bottom.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats", note: "Powerful hip snap — treat as strength work.", sets:{s:3,h:4,m:3}, reps:{s:8,h:12,m:10}, unilateral: false },
-    { name: "Staggered Stance DL", muscles: "Hamstrings, glutes", note: "Bridges bilateral and single-leg work.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "KB Good Morning", muscles: "Hamstrings, erectors", note: "Constant tension. Squeeze glutes at top.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: false }
+    { name: "Double KB Deadlift", muscles: "Glutes, hamstrings, erectors", note: "Reset each rep. Heaviest loading potential.", desc: "Stand over two kettlebells, hinge at the hips and grip both handles. Drive through your heels to stand tall, squeezing glutes at the top. Lower under control and fully reset before each rep.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Single-Leg RDL", muscles: "Hamstrings, glutes, stabilizers", note: "Controlled eccentric, pause at bottom.", desc: "Hold a kettlebell in one hand. Balance on the opposite leg and hinge forward, letting the free leg extend behind you. Keep your back flat and lower until you feel a deep hamstring stretch, then drive back up.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats", note: "Powerful hip snap — treat as strength work.", desc: "Hike the kettlebell between your legs, then explosively snap your hips forward to propel the bell to chest height. Your arms stay relaxed — all the power comes from the hip hinge. Control the backswing and repeat.", sets:{s:3,h:4,m:3}, reps:{s:8,h:12,m:10}, unilateral: false },
+    { name: "Staggered Stance DL", muscles: "Hamstrings, glutes", note: "Bridges bilateral and single-leg work.", desc: "Set one foot slightly behind the other with the back heel raised. Hinge at the hips to lower the kettlebell(s) along your front leg. Most of your weight stays on the front foot. Stand tall and squeeze at the top.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "KB Hip Thrust", muscles: "Glutes, hamstrings", note: "Squeeze hard at the top. Full lockout.", desc: "Sit on the floor with your upper back against a bench and a kettlebell on your hips. Plant your feet flat, then drive through your heels to lift your hips until your torso is parallel to the floor. Squeeze your glutes hard at lockout and lower under control.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: false }
   ],
   quad: [
-    { name: "Double Front Squat", muscles: "Quads, glutes, core", note: "Torso upright, elbows high.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
-    { name: "Goblet Squat", muscles: "Quads, glutes", note: "3s down, 1s pause, explode up.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
-    { name: "Bulgarian Split Squat", muscles: "Quads, glutes", note: "KBs in rack. Front shin vertical.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "Cossack Squat", muscles: "Quads, adductors", note: "Full depth. Straight leg grounded.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "Walking Lunge", muscles: "Quads, glutes", note: "Double KBs in rack. Controlled steps.", sets:{s:2,h:3,m:3}, reps:{s:8,h:12,m:10}, unilateral: true }
+    { name: "Double Front Squat", muscles: "Quads, glutes, core", note: "Torso upright, elbows high.", desc: "Clean two kettlebells into the rack position at your chest. Squat deep while keeping your torso upright and elbows high. Drive through your whole foot to stand. The front-loaded position forces core engagement.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Goblet Squat", muscles: "Quads, glutes", note: "3s down, 1s pause, explode up.", desc: "Hold a kettlebell by the horns at chest height. Squat down between your knees, keeping your chest up and back flat. Use a slow descent, pause at the bottom, then drive up explosively.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Bulgarian Split Squat", muscles: "Quads, glutes", note: "KBs in rack. Front shin vertical.", desc: "Place your rear foot on a bench behind you. Hold kettlebells in the rack position or by your sides. Lower your back knee toward the floor while keeping your front shin vertical. Drive through the front heel to stand.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Cossack Squat", muscles: "Quads, adductors", note: "Full depth. Straight leg grounded.", desc: "Take a wide stance. Shift your weight to one side and squat deep on that leg while the other leg stays straight with the foot flat or heel down. Hold a kettlebell at your chest for counterbalance. Alternate sides.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Walking Lunge", muscles: "Quads, glutes", note: "Double KBs in rack. Controlled steps.", desc: "Hold two kettlebells in the rack position. Step forward into a deep lunge, lowering your back knee toward the floor. Drive through the front heel and step the back foot forward into the next lunge.", sets:{s:2,h:3,m:3}, reps:{s:8,h:12,m:10}, unilateral: true }
   ],
   push: [
-    { name: "Double Military Press", muscles: "Shoulders, triceps", note: "Strict — no leg drive. Squeeze glutes.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
-    { name: "Single-Arm Press", muscles: "Shoulder, triceps, core", note: "Brace hard. Control the negative.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true },
-    { name: "Push Press", muscles: "Shoulders, triceps, legs", note: "Short dip-drive, lock out hard.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
-    { name: "Floor Press", muscles: "Chest, triceps", note: "Pause when elbows touch floor.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
-    { name: "Bottoms-Up Press", muscles: "Shoulder stabilizers, grip", note: "Lighter bell. Crush the handle.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true }
+    { name: "Double Military Press", muscles: "Shoulders, triceps", note: "Strict — no leg drive. Squeeze glutes.", desc: "Clean two kettlebells to the rack position. Brace your core and squeeze your glutes, then press both bells overhead to full lockout. Lower under control. No leg drive — pure pressing strength.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Single-Arm Press", muscles: "Shoulder, triceps, core", note: "Brace hard. Control the negative.", desc: "Clean one kettlebell to the rack. Brace your entire body and press the bell overhead, keeping your torso vertical with no lean. Lower slowly under control. The offset load forces anti-lateral flexion in the core.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true },
+    { name: "Push Press", muscles: "Shoulders, triceps, legs", note: "Short dip-drive, lock out hard.", desc: "From the rack position, perform a short, sharp dip by bending your knees, then explosively drive the bells overhead using leg power. Lock out hard at the top. Lower under control back to the rack.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Floor Press", muscles: "Chest, triceps", note: "Pause when elbows touch floor.", desc: "Lie on your back holding kettlebells above your chest. Lower the bells until your upper arms rest on the floor — pause briefly to eliminate the stretch reflex — then press back up. The limited range isolates the triceps.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Bottoms-Up Press", muscles: "Shoulder stabilizers, grip", note: "Lighter bell. Crush the handle.", desc: "Hold the kettlebell upside down (bottom facing the ceiling) by crushing the handle. Press it overhead while keeping the bell balanced. This requires extreme grip strength and shoulder stability. Use a lighter bell than your normal press.", sets:{s:2,h:3,m:2}, reps:{s:5,h:8,m:6}, unilateral: true }
   ],
   pull: [
-    { name: "Gorilla Row", muscles: "Lats, upper back", note: "Alternate from floor. Squeeze at top.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "Single-Arm Row", muscles: "Lats, rhomboids", note: "Drive elbow past ribcage.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
-    { name: "Renegade Row", muscles: "Lats, core", note: "Wide stance. Minimize hip rotation.", sets:{s:2,h:3,m:2}, reps:{s:6,h:8,m:8}, unilateral: true },
-    { name: "High Pull", muscles: "Upper back, rear delts, traps", note: "Explosive hip drive into elbow-high pull.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
-    { name: "Tall Kneeling Row", muscles: "Lats, rhomboids", note: "Eliminates momentum. Pure isolation.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: true }
+    { name: "Gorilla Row", muscles: "Lats, upper back", note: "Alternate from floor. Squeeze at top.", desc: "Place two kettlebells on the floor in front of you. Hinge over and grab both handles. Row one bell up while pressing the other into the floor for stability, then alternate. Keep your hips square and back flat.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Single-Arm Row", muscles: "Lats, rhomboids", note: "Drive elbow past ribcage.", desc: "Support yourself with one hand on a bench or your knee. Row the kettlebell from a dead hang, driving your elbow past your ribcage and squeezing your shoulder blade at the top. Lower under control for a full stretch.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: true },
+    { name: "Renegade Row", muscles: "Lats, core", note: "Wide stance. Minimize hip rotation.", desc: "Start in a push-up position with hands on two kettlebells, feet wide. Row one bell to your hip while bracing hard to prevent your hips from rotating. Lower and repeat on the other side. This is as much a core exercise as a back exercise.", sets:{s:2,h:3,m:2}, reps:{s:6,h:8,m:8}, unilateral: true },
+    { name: "High Pull", muscles: "Upper back, rear delts, traps", note: "Explosive hip drive into elbow-high pull.", desc: "Start like a swing — hike the bell and snap your hips. As the bell rises, pull your elbow high and back, bringing the bell to shoulder height. Your elbow should stay above the wrist. Let it drop back into the next swing.", sets:{s:2,h:3,m:3}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Tall Kneeling Row", muscles: "Lats, rhomboids", note: "Eliminates momentum. Pure isolation.", desc: "Kneel upright (both knees on the ground, torso vertical). Row the kettlebell from a dead hang to your hip. With no lower body involvement, this isolates the lats and mid-back completely.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: true }
   ],
   core: [
-    { name: "Turkish Get-Up", muscles: "Full core, shoulders, hips", note: "Own every position. Deliberate.", sets:{s:2,h:2,m:2}, reps:{s:2,h:3,m:2}, unilateral: true },
-    { name: "Suitcase Carry", muscles: "Obliques, QL", note: "Heavy. Stand tall, no leaning.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
-    { name: "Windmill", muscles: "Obliques, hip stabilizers", note: "Loaded overhead. Eyes on bell.", sets:{s:2,h:3,m:2}, reps:{s:5,h:6,m:5}, unilateral: true },
-    { name: "Waiter Walk", muscles: "Deep core, shoulder stabilizers", note: "Lock arm out. Brace everything.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
-    { name: "Dead Bug Pullover", muscles: "Anterior core", note: "KB overhead, extend opposite leg.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: false }
+    { name: "Turkish Get-Up", muscles: "Full core, shoulders, hips", note: "Own every position. Deliberate.", desc: "Lie on your back holding a kettlebell overhead. Rise to standing through a precise sequence: roll to elbow, post on hand, bridge hips, sweep leg to kneeling, then stand. Reverse the sequence to return. Keep your eyes on the bell throughout.", sets:{s:2,h:2,m:2}, reps:{s:2,h:3,m:2}, unilateral: true },
+    { name: "Suitcase Carry", muscles: "Obliques, QL", note: "Heavy. Stand tall, no leaning.", desc: "Hold a heavy kettlebell in one hand at your side like a suitcase. Walk in a straight line, standing completely tall with no lean toward or away from the bell. Your obliques and quadratus lumborum work hard to keep you vertical.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
+    { name: "Windmill", muscles: "Obliques, hip stabilizers", note: "Loaded overhead. Eyes on bell.", desc: "Press a kettlebell overhead and lock it out. Turn your feet out at 45 degrees. Hinge at the hip and slide your free hand down your front leg while keeping the bell stacked directly over your shoulder. Eyes stay on the bell. Reverse to stand.", sets:{s:2,h:3,m:2}, reps:{s:5,h:6,m:5}, unilateral: true },
+    { name: "Waiter Walk", muscles: "Deep core, shoulder stabilizers", note: "Lock arm out. Brace everything.", desc: "Press a kettlebell overhead and lock your arm completely straight. Walk slowly and deliberately, bracing your entire core to prevent the bell from wobbling. This trains overhead stability and anti-extension through the trunk.", sets:{s:2,h:3,m:2}, reps:{s:1,h:1,m:1}, unit:"30m", unilateral: true },
+    { name: "Dead Bug Pullover", muscles: "Anterior core", note: "KB overhead, extend opposite leg.", desc: "Lie on your back with arms extended holding a kettlebell over your chest and knees at 90 degrees. Slowly lower the bell behind your head while extending the opposite leg, keeping your lower back pressed into the floor. Return and switch sides.", sets:{s:2,h:3,m:2}, reps:{s:6,h:10,m:8}, unilateral: false },
+    { name: "Kettlebell Halo", muscles: "Shoulders, core, thoracic spine", note: "Tight circle around head. Alternate directions each set.", desc: "Hold the kettlebell by the horns upside down at chest height. Circle the bell around your head in a tight path, keeping it close to your skull. Your core braces to resist rotation while your shoulders and thoracic spine mobilize. Switch direction each set.", sets:{s:2,h:3,m:2}, reps:{s:8,h:12,m:10}, unilateral: false }
   ],
   fullbody: [
-    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats, core", note: "Powerful hip snap — the ultimate KB exercise.", sets:{s:3,h:4,m:3}, reps:{s:10,h:15,m:12}, unilateral: false },
-    { name: "Clean and Press", muscles: "Full body", note: "The gold standard. Heavy doubles.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
-    { name: "Clean & Jerk", muscles: "Full body", note: "Use leg drive on the jerk.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
-    { name: "Double Clean", muscles: "Posterior chain, grip, core", note: "Aggressive hip snap into rack.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
-    { name: "Snatch", muscles: "Posterior chain, shoulders", note: "Heavy bell, low reps. Punch through.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: true },
-    { name: "Armor Building Complex", muscles: "Full body", note: "2 cleans + 1 press + 3 front squats.", sets:{s:2,h:3,m:3}, reps:{s:1,h:1,m:1}, unit:"complex", unilateral: false }
+    { name: "Heavy Two-Hand Swing", muscles: "Glutes, hamstrings, lats, core", note: "Powerful hip snap — the ultimate KB exercise.", desc: "Hike the kettlebell between your legs, then explosively snap your hips forward to propel the bell to chest height. Your arms stay relaxed — all the power comes from the hip hinge. Control the backswing and repeat.", sets:{s:3,h:4,m:3}, reps:{s:10,h:15,m:12}, unilateral: false },
+    { name: "Clean and Press", muscles: "Full body", note: "The gold standard. Heavy doubles.", desc: "Swing the kettlebell(s) and catch in the rack position at your chest (the clean), then press overhead to lockout. Lower back to rack, then back to the swing. Each rep is two movements chained together — hip power into pressing strength.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
+    { name: "Clean & Jerk", muscles: "Full body", note: "Use leg drive on the jerk.", desc: "Clean the bell(s) to the rack, then use a quick knee dip and explosive leg drive to launch the bell overhead (the jerk). This lets you move more weight overhead than a strict press. Lock out hard at the top before lowering.", sets:{s:2,h:3,m:3}, reps:{s:3,h:6,m:5}, unilateral: false },
+    { name: "Double Clean", muscles: "Posterior chain, grip, core", note: "Aggressive hip snap into rack.", desc: "Swing two kettlebells between your legs and use an aggressive hip snap to pull them into the rack position at your chest. Absorb the catch softly with bent knees. Drop back to the swing position and repeat. Demands grip, timing, and full-body coordination.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: false },
+    { name: "Snatch", muscles: "Posterior chain, shoulders", note: "Heavy bell, low reps. Punch through.", desc: "Swing a single kettlebell and in one fluid motion, pull it overhead to lockout — punching your hand through at the top so the bell lands softly on the back of your wrist. The most technical ballistic kettlebell movement.", sets:{s:2,h:3,m:3}, reps:{s:5,h:8,m:6}, unilateral: true },
+    { name: "Armor Building Complex", muscles: "Full body", note: "2 cleans + 1 press + 3 front squats.", desc: "With double kettlebells, perform 2 cleans, then 1 press, then 3 front squats — that's one round. Created by Dan John, this complex hits every major movement pattern in a single sequence. Rest between rounds, not within them.", sets:{s:2,h:3,m:3}, reps:{s:1,h:1,m:1}, unit:"complex", unilateral: false }
   ]
 };
 
@@ -1273,14 +1313,14 @@ function startForge() {
   st.classList.remove('visible');
   void svg.offsetWidth;
   svg.classList.add('spinning');
-  setTimeout(() => st.classList.add('visible'), 800);
+  setTimeout(() => st.classList.add('visible'), 500);
   setTimeout(() => {
     ov.classList.remove('active');
     svg.classList.remove('spinning');
     st.classList.remove('visible');
     currentWorkout = buildWorkout();
     renderPreview();
-  }, 2200);
+  }, 1400);
 }
 
 // ===== PREVIEW =====
@@ -1309,6 +1349,7 @@ function renderPreview() {
     h += `<div class="exercise-card" data-cat="${ex.category}" style="animation-delay:${i*0.07}s">
       <span class="exercise-num">${exNum(i)}</span>
       <button class="swap-btn" onclick="swapEx(${i})" title="Swap">&#x21bb;</button>
+      <button class="info-btn" onclick="toggleDesc(this)" title="How to perform">?</button>
       <span class="exercise-tag" data-cat="${ex.category}">${m.label}</span>
       <div class="exercise-name">${ex.name}${sideTag}</div>
       <div class="exercise-muscles">${ex.muscles}</div>
@@ -1317,6 +1358,7 @@ function renderPreview() {
         <div class="prescription-item"><span class="prescription-value">${ex.displayUnit==='30m'?'30':ex.repsN}</span><span class="prescription-label">${rl}</span></div>
       </div>
       <div class="exercise-note">${ex.note}</div>
+      <div class="exercise-desc">${ex.desc || ''}</div>
     </div>`;
   });
 
@@ -1330,6 +1372,19 @@ function renderPreview() {
 }
 
 function exNum(i) { return String(i+1).padStart(2, '0'); }
+
+function toggleDesc(btn) {
+  const card = btn.closest('.exercise-card');
+  const desc = card.querySelector('.exercise-desc');
+  const isVisible = desc.classList.contains('visible');
+  // Close all other open descriptions
+  document.querySelectorAll('.exercise-desc.visible').forEach(d => d.classList.remove('visible'));
+  document.querySelectorAll('.info-btn.active-info').forEach(b => b.classList.remove('active-info'));
+  if (!isVisible) {
+    desc.classList.add('visible');
+    btn.classList.add('active-info');
+  }
+}
 
 function swapEx(i) {
   if (workoutActive) return;
@@ -1404,6 +1459,7 @@ function renderActive() {
     const sideTag = ex.unilateral ? '<span class="per-side-badge">EACH SIDE</span>' : '';
     h += `<div class="exercise-card ${done?'completed-exercise':''}" data-cat="${ex.category}" style="animation-delay:${i*0.05}s">
       <span class="exercise-num">${exNum(i)}</span>
+      <button class="info-btn" onclick="toggleDesc(this)" title="How to perform">?</button>
       <span class="exercise-tag" data-cat="${ex.category}">${m.label}</span>
       <div class="exercise-name">${ex.name}${sideTag}</div>
       <div class="exercise-muscles">${ex.muscles}</div>
@@ -1411,6 +1467,7 @@ function renderActive() {
         <div class="prescription-item"><span class="prescription-value">${ex.setsN}</span><span class="prescription-label">Sets</span></div>
         <div class="prescription-item"><span class="prescription-value">${ex.displayUnit==='30m'?'30':ex.repsN}</span><span class="prescription-label">${rl}</span></div>
       </div>
+      <div class="exercise-desc">${ex.desc || ''}</div>
       <div class="set-checkboxes">
         <span class="set-checkboxes-label">Sets</span>
         ${setStates[i].map((ck,s) => `<button class="set-checkbox ${ck?'checked':''}" onclick="togSet(${i},${s})">${ck?'&#10003;':(s+1)}</button>`).join('')}
